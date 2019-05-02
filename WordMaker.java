@@ -1,4 +1,5 @@
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.text.ParseException;
@@ -144,8 +145,8 @@ public class WordMaker
         //The variables below will denote the columns for the categories in the spreadsheet.
         //In the case where the category does not exist, the value of its respective variable will be -1.
         int collectionName = -1, collectionId = -1, accessionDate = -1, cont1 = -1, cont1Start = -1, cont1End = -1, 
-        	cont2 = -1, cont2Start = -1, cont2End = -1, series = -1, subseries = -1, subsubseries = -1, heading = -1, 
-        	description = -1, medium = -1, form = -1, dateExpression = -1, namedEntities = -1, beginDate = -1, endDate = -1;
+        	cont2 = -1, cont2Start = -1, cont2End = -1, groupSeries = -1, groupDescription = -1, series = -1, subseries = -1, subsubseries = -1, title = -1, 
+        	description = -1, language = -1, medium = -1, form = -1, dateExpression = -1, namedEntities = -1, beginDate = -1, endDate = -1;
         
         //The first row of the sheet should contain all categories used in the sheet.
         //With the next two lines of code, the first row is obtained, and a Cell iterator is created.
@@ -176,7 +177,11 @@ public class WordMaker
             else if(cell.getStringCellValue().equals("Cont 2 Start"))
                 cont2Start = cell.getColumnIndex();            	
             else if(cell.getStringCellValue().equals("Cont 2 End"))
-                cont2End = cell.getColumnIndex();            	
+                cont2End = cell.getColumnIndex();
+            else if(cell.getStringCellValue().equals("Group Series"))
+                groupSeries = cell.getColumnIndex(); 
+            else if(cell.getStringCellValue().equals("Group Description"))
+                groupDescription = cell.getColumnIndex(); 
             else if(cell.getStringCellValue().equals("Series"))
                 series = cell.getColumnIndex();            	
             else if(cell.getStringCellValue().equals("Subseries"))
@@ -184,10 +189,12 @@ public class WordMaker
             //Subsubseries must be written in the manner below.
             else if(cell.getStringCellValue().equals("Subsubseries"))
                 subsubseries = cell.getColumnIndex();            	
-            else if(cell.getStringCellValue().equals("Heading"))
-                heading = cell.getColumnIndex();           	
+            else if(cell.getStringCellValue().equals("Title"))
+                title = cell.getColumnIndex();           	
             else if(cell.getStringCellValue().equals("Description"))
-                description = cell.getColumnIndex();           	
+                description = cell.getColumnIndex();
+            else if(cell.getStringCellValue().equals("Description"))
+                language = cell.getColumnIndex();  
             else if(cell.getStringCellValue().equals("Medium"))
                 medium = cell.getColumnIndex();            	
             else if(cell.getStringCellValue().equals("Form"))
@@ -349,11 +356,11 @@ public class WordMaker
 	            			//The following code parses the current row for the header, description, medium, form, and date expression.
 	            			//In the case which a certain parameter is absent, extra punctuation will not be added.
 	            			String headerAndDetails = "";
-	            			if(!df.formatCellValue(row.getCell(heading)).isEmpty())
+	            			if(!df.formatCellValue(row.getCell(title)).isEmpty())
 	            			{
 	            				//Some headers already have surrounding quotation marks.
 	            				//In this case, the addition of another set will not be necessary, so it is checked.
-	            				String headerString = df.formatCellValue(row.getCell(heading));
+	            				String headerString = df.formatCellValue(row.getCell(title));
 	            				if(headerString.charAt(0) == '"') 
 	            				{
 	            					headerString = headerString.substring(0, headerString.length() - 1);
@@ -368,6 +375,8 @@ public class WordMaker
 	            			}
 	            			if(!row.getCell(description).getStringCellValue().isEmpty())
 	            				headerAndDetails = headerAndDetails + row.getCell(description).getStringCellValue();
+	            			if(!row.getCell(language).getStringCellValue().isEmpty())
+	            				headerAndDetails = headerAndDetails + ", In " + row.getCell(language).getStringCellValue();
 	            			if(!row.getCell(medium).getStringCellValue().isEmpty())
 	            				headerAndDetails = headerAndDetails + ", " + row.getCell(medium).getStringCellValue();
 	            			if(!df.formatCellValue(row.getCell(form)).isEmpty())
@@ -403,7 +412,7 @@ public class WordMaker
 	            									+ df.formatCellValue(row.getCell(cont2End)) + "]");
 	            			
 	            			//[headingTracker] is updated for the current item.
-	            			headingTracker = row.getCell(heading).getStringCellValue();
+	            			headingTracker = row.getCell(title).getStringCellValue();
 	            			
 	            			//In the case where [subsubseries] points to a column in the spreadsheet, this code will run.
 	            			if(subsubseries != -1)
@@ -413,7 +422,7 @@ public class WordMaker
 	            				
 	            				//The termination condition for the while loop below is a change in heading.
 	    	        			//This should stop once the selected item is in a different heading than [headingTracker].
-	            				while(row.getCell(heading).getStringCellValue().equals(headingTracker))
+	            				while(row.getCell(title).getStringCellValue().equals(headingTracker))
 	                			{
 	            					//The subsubseries and its letter are written in the document.
 	            	            	//Following the format, it will be indented four times.
