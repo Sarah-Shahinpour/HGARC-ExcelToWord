@@ -1,2 +1,2 @@
 # HGARC-ExcelToWord
-Iterates through an Excel file and creates a Word doc
+Iterates through an Excel spreadsheet and creates a Word doc finding aid.
